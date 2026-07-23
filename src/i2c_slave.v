@@ -23,7 +23,7 @@ module i2c_slave #(
 
         reg master_ack;
 
-        reg [3:0] bit_counter;  // 0  to 9 for 8 data-bits + 1 ack-bit
+        reg [3:0] bit_counter;  // 0 to 9 for 8 data-bits + 1 ack-bit
         reg [7:0] input_reg;    // for incomming bits by master
         reg [7:0] output_reg;   // for outgoing bits to master
 
@@ -177,7 +177,7 @@ wire stop_detect = sda_rising && scl_q; // rising edge of SDA while SCL is high 
                                          (state == S_RCV_ADDR && address_detect && read_write_bit)))    // when in S_RCV_ADDR, and next state will be S_READ
                         reg_addr <= reg_addr + 8'd1;
                 else if (reg_write)
-                        reg_addr <= reg_addr + 8'd1;      // Write: increment only after rising edge of reg_write (to precent writing received data to wron register)
+                        reg_addr <= reg_addr + 8'd1;      // Write: increment only after rising edge of reg_write (to prevent writing received data to wrong register)
         end
 
 

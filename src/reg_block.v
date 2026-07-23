@@ -6,11 +6,11 @@ module reg_block #(
 ) (
         input wire         clk,
         input wire         N_RST,
-        // Schreib-Port (in deinem Fall: LFSR)
+        // Write-Port
         input  wire [7:0]  waddr,
         input  wire [7:0]  wdata,
         input  wire        we,
-        // Lese-Port (in deinem Fall: I²C-Slave)
+        // Read-Port
         input  wire [7:0]  raddr,
         output wire [7:0]  rdata
 );
@@ -33,12 +33,12 @@ reg [7:0] registers [0:N_REGS-1]; // array of N_REGS x 8-bit registers
 integer i;
 always @(posedge clk) begin
         if (!N_RST) begin
-                // reset all registers to 0 on active low reset
+                // reset all registers to value specified in RESET_VALUES on active low reset
                 for (i = 0; i < N_REGS; i = i + 1) 
                         registers[i] <= RESET_VALUES[i*8 +: 8];
         end
         else if (w_selected && we) 
-                // write wdata to the addressed register (warrd) when selected and we is high
+                // write wdata to the addressed register (waddr) when selected and we is high
                 registers[w_local_addr] <= wdata;
 end
 

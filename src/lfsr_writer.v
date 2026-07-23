@@ -2,7 +2,7 @@ module lfsr_writer #(
     parameter [7:0] BASE_ADDR    = 8'h08,
     parameter       N_REGS       = 8,
     parameter [7:0] SEED         = 8'h01,
-    parameter       TICK_DIVIDER = 4096    // alle ~4096 Takte ein neuer Schreibvorgang
+    parameter       TICK_DIVIDER = 4096    // one Write to register every 4096 Clock cycles
 ) (
     input  wire        clk,
     input  wire        N_RST,
@@ -10,7 +10,7 @@ module lfsr_writer #(
     output wire [7:0]  wdata,
     output reg         we
 );
-    // --- LFSR: läuft auf jeder clk-Flanke ---
+    // --- LFSR: advances on every clk edge ---
     reg [7:0] lfsr;
     wire feedback = lfsr[7] ^ lfsr[5] ^ lfsr[4] ^ lfsr[3];
 
@@ -23,8 +23,8 @@ module lfsr_writer #(
 
     assign wdata = lfsr;
 
-    // --- Tick-Zähler: legt fest, WANN geschrieben wird ---
-    reg [11:0] tick_counter;              // 12 Bit reichen für 4096
+    // --- Tick-counter: determines when LFSR content is written to register ---
+    reg [11:0] tick_counter;
     wire tick = (tick_counter == TICK_DIVIDER - 1);
 
     always @(posedge clk) begin
@@ -36,7 +36,7 @@ module lfsr_writer #(
             tick_counter <= tick_counter + 1;
     end
 
-    // --- Schreib-Adresse: läuft beim Tick eins weiter, dann wieder von vorn ---
+    // --- Register address: increments on every tick and wraps back to beginning in the end---
     always @(posedge clk) begin
         if (!N_RST)
             waddr <= BASE_ADDR;
@@ -48,7 +48,7 @@ module lfsr_writer #(
         end
     end
 
-    // --- Write-Enable: genau einen Takt lang beim Tick ---
+    // --- Write-Enable: pulse for one clock cycle ---
     always @(posedge clk) begin
         if (!N_RST)
             we <= 1'b0;

@@ -90,7 +90,7 @@ reg_block #(
 );
 
 //-----------------------------------------------------------------------
-//------- Register Block C - Constant signature (read-only, no writer) --
+//----- Register Block C - Constant signature (read-only, no writer) ----
 //-----------------------------------------------------------------------
 // ASCII initials + year. Reading all 8 registers yields "SBJS2026".
 //  Register:  7     6     5     4     3     2     1     0
