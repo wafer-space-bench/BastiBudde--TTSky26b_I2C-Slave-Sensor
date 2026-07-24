@@ -15,7 +15,6 @@ The device responds at 7-bit I2C address `0x55`. To read a register, write the r
 The design was verified on hardware using a Sipeed Tang Primer 25K FPGA with an ESP32-C6 acting as I2C master, running a test suite at all three bus speeds. The full setup, firmware and results are documented in the FPGA test report:
 
 [FPGA test report](https://github.com/BastiBudde/TTSky26b_I2C-Slave-Sensor/blob/main/docs/fpga_report.md)
-<!-- Adjust the URL to your actual repository path/branch. -->
 
 ## External hardware
 

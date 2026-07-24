@@ -1,8 +1,10 @@
 .DS_Store
 .idea
 *.vcd
+*.gtkw
 *.fst
 *.fst.hier
+*.ron
 runs
 tt_submission
 src/user_config.json
@@ -15,5 +17,5 @@ test/sby/config/
 test/sby/config_taskbmc/
 test/sby/config_taskcover/
 *Zone.Identifier
-*.ron
 test/fpga/ESP32_C6_fpga_test/build
+build/

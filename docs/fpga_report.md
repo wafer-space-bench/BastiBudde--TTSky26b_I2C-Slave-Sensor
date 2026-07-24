@@ -45,8 +45,6 @@ Then right click on the device entry in the Programmer window and choose ```Conf
 - Start Address: `0x000000`
 
 
-<!-- Optionally note here the clock pin and reset pin assignments that were
-     resolved during bring-up. -->
 
 ### 3.2 I2C master (microcontroller)
 
@@ -176,8 +174,6 @@ I (34992) i2c_suite: ########## SUMMARY: 45 passed, 0 failed ##########
 **Result: 45 of 45 checks passed**, with the signature reading `SBJS2026` identically at all three bus speeds. 
 
 ### 6.2 Oscilloscope captures
-
-<!-- Place image files under test/fpga/.../images/ and reference them. -->
 
 ![Address byte and ACK at 100 kHz](/docs/img/fpga/scope_ack_100k.png)
 *Figure 1: Device address 0x55 + WRITE followed by the slave ACK (SDA pulled low on the ninth SCL pulse) at 100 kHz.*

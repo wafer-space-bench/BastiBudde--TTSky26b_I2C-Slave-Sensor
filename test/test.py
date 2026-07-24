@@ -1,4 +1,3 @@
-# SPDX-FileCopyrightText: © 2024 Tiny Tapeout
 # SPDX-License-Identifier: Apache-2.0
 
 import cocotb
@@ -7,7 +6,7 @@ from cocotb.triggers import Timer, RisingEdge, ReadOnly
 from cocotbext.i2c import I2cMaster
 
 import os
-GATE_LEVEL = os.getenv("GATES") == "yes"
+GATE_LEVEL = os.getenv("GATES") == "yes" # detect if sim runs in RTL or gate-level
 
 #---------------------------------------------------------------------------------
 #---------------------------------- Parameters -----------------------------------
@@ -35,7 +34,7 @@ class I2cMasterWithAck(I2cMaster):
     async def write(self, addr, data):
         self.log.info("Write %s to device at I2C address 0x%02x", data, addr)
         await self.send_start()
-        # send_byte returns True on NACK, False on ACK — we invert to "acked"
+        # send_byte returns True on NACK, False on ACK -> we invert to "acked"
         acks = []
         acks.append(not await self.send_byte((addr << 1) | 0))
         for b in data:
@@ -59,7 +58,7 @@ async def reset_dut(dut):
     """Resetting device, making Bus idle"""
     await Timer(5000, unit="ns")
     dut.rst_n.value = 0
-    dut.scl_master_drive.value = 1   # released
+    dut.scl_master_drive.value = 1   # bus released
     dut.sda_master_drive.value = 1
     dut.ena.value = 1
     dut.ui_in.value = 0
@@ -70,9 +69,9 @@ async def reset_dut(dut):
 
 def make_master(dut, speed=400e3):
     return I2cMasterWithAck(
-        sda=dut.sda_bus,                  # observed SDA
+        sda=dut.sda_bus,                  # observes SDA
         sda_o=dut.sda_master_drive,       # master drive output
-        scl=dut.scl_bus,                  # observed SCL
+        scl=dut.scl_bus,                  # observes SCL
         scl_o=dut.scl_master_drive,       # master drive output
         speed=speed,
     )
@@ -124,7 +123,7 @@ async def test_write_address(dut, speed):
     )
 
     await master.send_stop()
-    dut._log.info(f"Address ACKed at speed {speed:.0e} — passed.")
+    dut._log.info(f"Address ACKed at speed {speed:.0e} - passed.")
 
 
 #---------------------------------------------------------------------------------
@@ -155,7 +154,7 @@ async def test_read_address(dut, speed):
     _second_byte = await master.recv_byte(True)   # NACK -> end of transaction
     await master.send_stop()
 
-    dut._log.info("Address ACKed and state correctly S_READ — passed.")
+    dut._log.info("Address ACKed and state correctly S_READ - passed.")
 
 
 #---------------------------------------------------------------------------------
@@ -202,7 +201,7 @@ async def test_full_write(dut, speed):
     await reset_dut(dut)
     master = make_master(dut, speed=speed)
 
-    # Monitor only makes sense at RTL — internal signals are gone at gate level
+    # Monitor only makes sense at RTL -> internal signals are gone at gate level
     captured = []
     if not GATE_LEVEL:
         cocotb.start_soon(reg_write_monitor(dut, captured))
@@ -232,7 +231,7 @@ async def test_full_write(dut, speed):
             f"regs[{WRITE_INDEX}] = 0x{reg3:02X}, expected 0x{WRITE_DATA:02X}"
         )
 
-    # Black-box readback works at both RTL and gate level — add it as an
+    # Black-box readback works at both RTL and gate level -> add it as an
     # extra check so gate-level still verifies *something* about the write
     readback = await read_register(master, WRITE_INDEX)
     assert readback == WRITE_DATA, (
@@ -293,7 +292,7 @@ async def test_bulk_write(dut, speed):
     start_index = 0x02
     data_bytes  = [0x11, 0x22, 0x33]
 
-    # Monitor only makes sense at RTL — internal signals are gone at gate level
+    # Monitor only makes sense at RTL -> internal signals are gone at gate level
     captured = []
     if not GATE_LEVEL:
         cocotb.start_soon(reg_write_monitor(dut, captured))
@@ -339,7 +338,7 @@ async def test_bulk_write(dut, speed):
             f"Readback A[0x{addr:02X}] = 0x{readback:02X}, expected 0x{expected:02X}"
         )
 
-    dut._log.info("Bulk-write correct — all bytes at the right places.")
+    dut._log.info("Bulk-write correct - all bytes at the right places.")
 
 
 #---------------------------------------------------------------------------------
@@ -375,7 +374,7 @@ async def test_bulk_read(dut, speed):
     assert read_values == values, (
         f"Bulk read mismatch: {read_values} != {values}"
     )
-    dut._log.info("Bulk read correct — full sequence with auto-increment.")
+    dut._log.info("Bulk read correct - full sequence with auto-increment.")
 
 
 #---------------------------------------------------------------------------------
@@ -430,7 +429,7 @@ async def test_address_decoding(dut, speed):
             )
 
     # Black-box equivalent: read every A register back via I2C and check.
-    # This runs at both RTL and gate level — the white-box version above
+    # This runs at both RTL and gate level -> the white-box version above
     # is a stronger statement at RTL but the bus-level check covers gate level.
     a_readback = await read_register(master, a_index)
     assert a_readback == a_value, (
@@ -444,7 +443,7 @@ async def test_address_decoding(dut, speed):
             f"A[0x{i:02X}] disturbed: 0x{val:02X}, expected 0x{reset_a[i]:02X}"
         )
 
-    dut._log.info("Address decoding correct — A targeted precisely, "
+    dut._log.info("Address decoding correct - A targeted precisely, "
                   "B-write had no effect on A.")
     
 
@@ -516,7 +515,7 @@ async def test_unmapped_address(dut, speed):
         f"Unmapped read should return 0x00, got 0x{data[0]:02X}"
     )
 
-    dut._log.info("Unmapped address handled correctly — ACKed without effect, "
+    dut._log.info("Unmapped address handled correctly - ACKed without effect, "
                   "read returns 0x00.")
     
 
@@ -548,7 +547,7 @@ async def test_block_b_is_read_only(dut, speed):
     assert before_acked, "Read address not ACKed (before)"
     dut._log.info(f"B[0x{target_addr:02X}] before write attempt: 0x{before_data[0]:02X}")
 
-    # Write attempt — slave will ACK, but Block B must not be affected
+    # Write attempt -> slave will ACK, but Block B must not be affected
     acks_write = await master.write(DEVICE_ADDR, [target_addr, forbidden])
     await master.send_stop()
     assert all(acks_write), f"Write attempt not fully ACKed: {acks_write}"
@@ -564,7 +563,7 @@ async def test_block_b_is_read_only(dut, speed):
     assert after_data[0] != forbidden, (
         f"Block B accepted the write! Value is 0x{after_data[0]:02X}"
     )
-    dut._log.info("Block B is read-only — write attempt correctly ignored.")
+    dut._log.info("Block B is read-only - write attempt correctly ignored.")
 
 
 #---------------------------------------------------------------------------------
@@ -589,7 +588,7 @@ async def test_lfsr_is_active(dut, speed):
 
     target_addr  = 0x09
     n_samples    = 4
-    wait_between = 2     # ms — longer than the ~1.3 ms per-register update period
+    wait_between = 2     # ms -> longer than the ~1.3 ms per-register update period
 
     samples = []
     for i in range(n_samples):
@@ -604,14 +603,14 @@ async def test_lfsr_is_active(dut, speed):
         f"LFSR seems stuck: all {n_samples} reads returned {samples}"
     )
     dut._log.info(
-        f"LFSR is active — {len(unique_values)} distinct values in {n_samples} reads."
+        f"LFSR is active - {len(unique_values)} distinct values in {n_samples} reads."
     )
 
 
 #---------------------------------------------------------------------------------
 #----------------------- All B registers get updated -----------------------------
 #---------------------------------------------------------------------------------
-@cocotb.test(skip=GATE_LEVEL)
+@cocotb.test(skip=GATE_LEVEL) # SKIP this test at GATE-LEVEL!
 @cocotb.parametrize(speed=[100e3, 400e3, 1e6])
 async def test_all_b_registers_updated(dut, speed):
     """Over time the LFSR must write each individual register in Block B."""
@@ -619,7 +618,7 @@ async def test_all_b_registers_updated(dut, speed):
     await reset_dut(dut)
     master = make_master(dut, speed=speed)
 
-    # Pull block parameters from the RTL — single source of truth
+    # Pull block parameters from the RTL -> single source of truth
     base_addr = int(dut.user_project.top_level_inst.reg_block_b.BASE_ADDR.value)
     n_regs    = int(dut.user_project.top_level_inst.reg_block_b.N_REGS.value)
     reset_b_local = extract_reset_values(
@@ -687,7 +686,7 @@ async def test_block_a_unaffected_by_lfsr(dut, speed):
             f"A[0x{addr:02X}] was changed: 0x{value:02X} instead of 0x{expected:02X}"
         )
 
-    dut._log.info("Block A remains untouched by LFSR — clean range separation.")
+    dut._log.info("Block A remains untouched by LFSR - clean range separation.")
 
 
 #---------------------------------------------------------------------------------
@@ -696,7 +695,7 @@ async def test_block_a_unaffected_by_lfsr(dut, speed):
 @cocotb.test()
 @cocotb.parametrize(speed=[100e3, 400e3, 1e6])
 async def test_bulk_read_stress(dut, speed):
-    """Repeated bulk reads over a long time — design must stay consistent."""
+    """Repeated bulk reads over a long time - design must stay consistent."""
     cocotb.start_soon(Clock(dut.clk, 40, unit="ns").start())
     await reset_dut(dut)
     master = make_master(dut, speed=speed)
@@ -708,7 +707,7 @@ async def test_bulk_read_stress(dut, speed):
 
     for iteration in range(n_iterations):
         # Set pointer, then repeated-START into a multi-byte read.
-        # An ACK on the very next iteration's address phase implicitly
+        # An ACK on the very next iteration"s address phase implicitly
         # confirms the slave returned to S_IDLE after the previous one.
         acks_idx = await master.write(DEVICE_ADDR, [start_index])
         assert all(acks_idx), (
@@ -752,7 +751,7 @@ async def test_bulk_read_stress(dut, speed):
         )
         assert len(unique) >= 2, (
             f"Slot {slot}: all {n_iterations} values identical "
-            f"({values_in_slot}) — LFSR stuck?"
+            f"({values_in_slot}) - LFSR stuck?"
         )
 
     # Sanity check: slave still works after all that
