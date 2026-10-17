@@ -1,0 +1,27 @@
+source:
+  url: https://github.com/BastiBudde/TTSky26b_I2C-Slave-Sensor
+  original_url: null
+  kind: fork
+  why: GitHub fork of the upstream repository
+  licence: null
+  upstream_default_branch: main
+tapeouts:
+- org: tinytapeout
+  run: ttgf26b
+  slot: tt_um_BastiBudde_i2c_slave_sensor
+  project: I2C Slave Template with Emulated Sensor
+  size: 1x1
+  kind: digital (Verilog)
+  commit: ea3121effd31dbbf865e98e156f2b0406c1b5268
+  commit_source: commit from the shuttle repo's projects/<name>/commit_id.json
+  tag: tinytapeout/ttgf26b/tt_um_BastiBudde_i2c_slave_sensor
+  branch: tapeout/tinytapeout/ttgf26b/tt_um_BastiBudde_i2c_slave_sensor
+  page: https://app.tinytapeout.com/shuttles/ttgf26b
+generated: '2026-10-17T23:15:17Z'
+tooling: https://github.com/wafer-space/wafer.space-bench
+index: https://wafer-space-bench.github.io
+branches:
+- about
+- tapeout/tinytapeout/ttgf26b/tt_um_BastiBudde_i2c_slave_sensor
+- upstream/feature/sine-gen
+- upstream/main
